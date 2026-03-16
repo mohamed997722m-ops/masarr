@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسار | المساعد الأكاديمي</title>
+<meta name="description" content="مسار - المساعد الأكاديمي الذكي للطلاب">
+<meta name="keywords" content="مسار, مساعد أكاديمي, جدول محاضرات, حضور طلاب">
+<meta name="author" content="mohamed_s_60">
+<meta name="theme-color" content="#16a34a">
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
+<!-- Apple touch icon -->
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مسار">
+<!-- Open Graph -->
+<meta property="og:title" content="مسار | المساعد الأكاديمي">
+<meta property="og:description" content="تتبع محاضراتك وحضورك بذكاء">
+<meta property="og:type" content="website">
+<meta property="og:image" content="icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#40916c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مسار">
+<link rel="apple-touch-icon" href="icon-192.png">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<!-- ===== ONBOARDING SCREEN ===== -->
+<div id="onboarding-screen" class="screen active">
+  <div class="onboard-bg">
+    <div class="islamic-pattern"></div>
+  </div>
+  <div class="onboard-container">
+    <div class="logo-area">
+      <div class="logo-icon">
+        <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 5 L55 20 L55 40 L30 55 L5 40 L5 20 Z" stroke="#a8d5a2" stroke-width="1.5" fill="none"/>
+          <path d="M30 12 L48 22 L48 38 L30 48 L12 38 L12 22 Z" stroke="#7bc47f" stroke-width="1" fill="rgba(168,213,162,0.1)"/>
+          <text x="30" y="35" text-anchor="middle" font-family="Amiri" font-size="18" fill="#a8d5a2">م</text>
+        </svg>
+      </div>
+      <h1 class="logo-text"><span class="brand-wrap">
+  <svg class="brand-road" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- road surface filled -->
+    <path d="M2 25 L10 3 L26 3 L34 25 Z" fill="rgba(74,124,89,0.18)" stroke="none"/>
+    <!-- left edge -->
+    <path d="M2 25 L10 3" stroke="#4a7c59" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- right edge -->
+    <path d="M34 25 L26 3" stroke="#4a7c59" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- center dashes -->
+    <line x1="18" y1="23" x2="18" y2="18" stroke="#6aab80" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="18" y1="15" x2="18" y2="10" stroke="#6aab80" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="18" y1="8"  x2="18" y2="5"  stroke="#6aab80" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>
+  <span class="brand-text">مسار</span>
+</span></h1>
+      <p class="logo-sub">المساعد الأكاديمي الذكي</p>
+    </div>
+
+    <div class="onboard-steps">
+      <!-- Step 1 — Username -->
+      <div class="step active" id="step-1">
+        <h2>اختر معرّفك</h2>
+        <p class="step-desc">هذا هو الـ ID اللي هيبحث بيه أصحابك عليك</p>
+        <div class="input-group">
+          <label>اسم المستخدم</label>
+          <div class="username-wrap">
+            <span class="username-prefix">@</span>
+            <input type="text" id="inp-username" placeholder="مثال: ahmed_2025"
+              autocomplete="off" autocapitalize="none" spellcheck="false"
+              oninput="checkUsername(this.value)">
+          </div>
+          <div class="username-status" id="username-status"></div>
+        </div>
+        <div class="input-group">
+          <label>الاسم الكامل</label>
+          <input type="text" id="inp-name" placeholder="الاسم الكامل" autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label>السن</label>
+          <input type="number" id="inp-age" placeholder="العمر" min="15" max="40">
+        </div>
+        <div class="step-btns">
+          <button class="btn-skip" onclick="skipOnboard()">تخطي</button>
+          <button class="btn-next" onclick="goStep(2)">التالي →</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" id="step-2">
+        <h2>البيانات الأكاديمية</h2>
+        <div class="input-group">
+          <label>الكلية</label>
+          <div class="autocomplete-wrap">
+            <input type="text" id="inp-faculty" placeholder="الكلية" autocomplete="off" oninput="filterFaculties(this.value)" onfocus="showFacultyList()">
+            <div class="autocomplete-list" id="faculty-list"></div>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>القسم</label>
+          <div class="autocomplete-wrap">
+            <input type="text" id="inp-dept" placeholder="القسم" autocomplete="off" oninput="filterDepts(this.value)" onfocus="showDeptList()">
+            <div class="autocomplete-list" id="dept-list"></div>
+          </div>
+        </div>
+        <div class="step-btns">
+          <button class="btn-back" onclick="goStep(1)">← رجوع</button>
+          <button class="btn-next" onclick="goStep(3)">التالي →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" id="step-3">
+        <h2>بيانات إضافية</h2>
+        <p class="step-desc">اختيارية — يمكن تعبئتها لاحقاً</p>
+        <div class="input-group">
+          <label>رقم التليفون</label>
+          <input type="tel" id="inp-phone" placeholder="01xxxxxxxxx">
+        </div>
+        <div class="input-group">
+          <label>العنوان</label>
+          <input type="text" id="inp-address" placeholder="محافظتك أو مدينتك">
+        </div>
+        <div class="input-group">
+          <label>لينك إنستجرام (اختياري)</label>
+          <input type="text" id="inp-instagram" placeholder="رابط حسابك">
+        </div>
+        <div class="step-btns">
+          <button class="btn-back" onclick="goStep(2)">← رجوع</button>
+          <button class="btn-next" onclick="finishOnboard()">ابدأ بدء الاستخدام</button>
+        </div>
+      </div>
+    </div>
+
+      <!-- Step 4 — Done -->
+      <div class="step" id="step-4">
+        <h2>كل شيء جاهز! 🎉</h2>
+        <p class="step-desc">حسابك أُنشئ بنجاح — يمكن لأصحابك البحث عنك بـ username</p>
+        <div class="onboard-done-card">
+          <div class="done-id-badge" id="done-id-badge">@---</div>
+          <p style="font-size:.82rem;color:var(--text2);margin-top:.5rem;">هذا هو معرّفك الفريد</p>
+        </div>
+        <div class="step-btns">
+          <button class="btn-back" onclick="goStep(3)">← رجوع</button>
+          <button class="btn-next" onclick="finishOnboard()">ابدأ مسار 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-dots">
+      <span class="dot active" onclick="goStep(1)"></span>
+      <span class="dot" onclick="goStep(2)"></span>
+      <span class="dot" onclick="goStep(3)"></span>
+      <span class="dot" onclick="goStep(4)"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app-screen" class="screen">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><span class="brand-wrap">
+  <svg class="brand-road" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- road surface filled -->
+    <path d="M2 25 L10 3 L26 3 L34 25 Z" fill="rgba(74,124,89,0.18)" stroke="none"/>
+    <!-- left edge -->
+    <path d="M2 25 L10 3" stroke="#4a7c59" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- right edge -->
+    <path d="M34 25 L26 3" stroke="#4a7c59" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- center dashes -->
+    <line x1="18" y1="23" x2="18" y2="18" stroke="#6aab80" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="18" y1="15" x2="18" y2="10" stroke="#6aab80" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="18" y1="8"  x2="18" y2="5"  stroke="#6aab80" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>
+  <span class="brand-text">مسار</span>
+</span></div>
+      <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" id="snav-home" onclick="showPage('home')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M9 21V12h6v9"/></svg>
+        الرئيسية
+      </a>
+      <a class="nav-item" id="snav-lectures" onclick="showPage('lectures')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5z"/></svg>
+        المحاضرات
+      </a>
+      <a class="nav-item" id="snav-tasks" onclick="showPage('tasks')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        المهام
+      </a>
+      <a class="nav-item" id="snav-notes" onclick="showPage('notes')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        الملاحظات
+      </a>
+      <a class="nav-item" id="snav-reminders" onclick="showPage('reminders')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        تذكيراتي
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item" onclick="showPage('profile')">
+        <span class="nav-icon">👤</span> الملف الشخصي
+      </a>
+      <div class="dark-toggle-wrap">
+        <span>الوضع الليلي</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="dark-toggle" onchange="toggleDark()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-right">
+      <button class="menu-btn" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="app-brand"><span class="brand-wrap">
+  <svg class="brand-road" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- road surface filled -->
+    <path d="M2 25 L10 3 L26 3 L34 25 Z" fill="rgba(74,124,89,0.18)" stroke="none"/>
+    <!-- left edge -->
+    <path d="M2 25 L10 3" stroke="#4a7c59" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- right edge -->
+    <path d="M34 25 L26 3" stroke="#4a7c59" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- center dashes -->
+    <line x1="18" y1="23" x2="18" y2="18" stroke="#6aab80" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="18" y1="15" x2="18" y2="10" stroke="#6aab80" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="18" y1="8"  x2="18" y2="5"  stroke="#6aab80" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>
+  <span class="brand-text">مسار</span>
+</span></div>
+    </div>
+    <div class="topbar-left">
+      <button class="silent-btn" id="silent-btn" onclick="toggleSilent()" title="وضع الصمت">
+        🔔
+      </button>
+      <div class="datetime-box" id="datetime-box">
+        <div class="time-display" id="time-display">00:00</div>
+        <div class="date-hijri" id="date-hijri">-- -- ----</div>
+        <div class="date-miladi" id="date-miladi">-- / -- / ----</div>
+      </div>
+      <button class="profile-avatar" onclick="showPage('profile')" id="profile-avatar-btn">
+        <span id="avatar-initials">؟</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE CONTAINER -->
+  <div class="page-container">
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home">
+      <div class="page-header">
+        <div>
+          <h2 id="today-day-title" class="today-day-heading"></h2>
+          <p class="page-sub">جدول اليوم</p>
+        </div>
+        <div class="prayer-box" id="prayer-box">
+          <div class="prayer-name" id="next-prayer-name">---</div>
+          <div class="prayer-time" id="next-prayer-time">--:--</div>
+          <div class="prayer-label">الصلاة القادمة</div>
+        </div>
+      </div>
+
+      <div class="today-schedule" id="today-schedule">
+        <div class="empty-state">
+          <div class="empty-icon">📅</div>
+          <p>مفيش مواعيد اليوم</p>
+          <button class="btn-add-small" onclick="showPage('lectures')">أضف محاضرة</button>
+        </div>
+      </div>
+
+      <div class="section-title">المهام المطلوبة</div>
+      <div id="today-tasks-list" class="tasks-preview"></div>
+
+      <div class="section-title">الملاحظات السريعة</div>
+      <div id="today-notes-list" class="notes-preview"></div>
+    </div>
+
+    <!-- LECTURES PAGE -->
+    <div class="page" id="page-lectures">
+      <div class="page-header">
+        <h2>المحاضرات 📚</h2>
+        <div style="display:flex;gap:.5rem"><button class="btn-add btn-bulk" onclick="openBulkModal()">📅 جدول كامل</button><button class="btn-add" onclick="openAddScheduleModal('lecture')">+ إضافة</button></div>
+      </div>
+      <div id="lectures-list" class="schedule-list"></div>
+    </div>
+
+    <!-- SECTIONS PAGE -->
+    <div class="page" id="page-sections">
+      <div class="page-header">
+        <h2>السكاشن 📖</h2>
+        <button class="btn-add" onclick="openAddScheduleModal('section')">+ إضافة</button>
+      </div>
+      <div id="sections-list" class="schedule-list"></div>
+    </div>
+
+    <!-- TASKS PAGE -->
+    <div class="page" id="page-tasks">
+      <div class="page-header">
+        <h2>المهام ✅</h2>
+        <button class="btn-add" onclick="openAddTaskModal()">+ إضافة</button>
+      </div>
+      <div id="tasks-list" class="tasks-list-full"></div>
+    </div>
+
+    <!-- NOTES PAGE -->
+    <div class="page" id="page-notes">
+      <div class="page-header">
+        <h2>الملاحظات 📌</h2>
+        <button class="btn-add" onclick="openAddNoteModal()">+ إضافة</button>
+      </div>
+      <div id="notes-grid" class="notes-grid"></div>
+    </div>
+
+    <!-- LINKS PAGE -->
+    <div class="page" id="page-links">
+      <div class="page-header">
+        <h2>روابط سريعة 🔗</h2>
+        <button class="btn-add" onclick="openAddLinkModal()">+ إضافة</button>
+      </div>
+      <div id="links-grid" class="links-grid"></div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div class="page" id="page-profile">
+      <div class="page-header">
+        <h2>الملف الشخصي 👤</h2>
+        <button class="btn-add" onclick="openEditProfile()">تعديل</button>
+      </div>
+      <div class="profile-card">
+        <div class="profile-avatar-section">
+          <div class="profile-avatar-large" id="profile-avatar-large" onclick="openAvatarPicker()">م</div>
+          <button class="avatar-change-btn" onclick="openAvatarPicker()">تغيير الصورة</button>
+        </div>
+        <div class="profile-info">
+          <div class="profile-row"><span class="profile-label">الاسم</span><span id="pf-name">-</span></div>
+          <div class="profile-row"><span class="profile-label">الكلية</span><span id="pf-faculty">-</span></div>
+          <div class="profile-row"><span class="profile-label">القسم</span><span id="pf-dept">-</span></div>
+          <div class="profile-row"><span class="profile-label">السن</span><span id="pf-age">-</span></div>
+          <div class="profile-row"><span class="profile-label">التليفون</span><span id="pf-phone">-</span></div>
+          <div class="profile-row"><span class="profile-label">العنوان</span><span id="pf-address">-</span></div>
+        </div>
+        <div class="data-actions">
+          <div class="dev-divider"></div>
+          <div class="section-title">إدارة البيانات</div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.2rem">
+            <button class="btn-data-action" onclick="exportData()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              تصدير نسخة احتياطية
+            </button>
+            <label class="btn-data-action btn-import">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              استيراد بيانات
+              <input type="file" accept=".json" style="display:none" onchange="importData(this.files[0])">
+            </label>
+          </div>
+          <p class="data-note">📱 بياناتك محفوظة على جهازك فقط ولا تُرسل لأي جهة</p>
+        </div>
+        <div class="developer-credit">
+          <div class="dev-divider"></div>
+          <p class="dev-label">المطوّر</p>
+          <a href="https://www.instagram.com/mohamed_s_60" target="_blank" class="dev-link">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" class="dev-insta-icon">
+            @mohamed_s_60
+          </a>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- STATS PAGE -->
+    <div class="page" id="page-stats">
+      <div class="page-header">
+        <h2>إحصائياتي 📊</h2>
+        <button class="btn-add btn-danger-sm" onclick="confirmEndTerm()" style="background:rgba(255,107,107,.15);color:#ff6b6b;border:1.5px solid rgba(255,107,107,.3);">🎓 إنهاء الترم</button>
+      </div>
+
+      <!-- score card -->
+      <div class="score-hero" id="score-hero">
+        <div class="score-bouquet" id="score-bouquet">🌱</div>
+        <div class="score-circle">
+          <svg viewBox="0 0 120 120" class="score-ring-svg">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border)" stroke-width="8"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="url(#scoreGrad)" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="314" id="score-ring-dash" stroke-dashoffset="314"
+              transform="rotate(-90 60 60)"/>
+            <defs>
+              <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="var(--accent)"/>
+                <stop offset="100%" stop-color="var(--teal)"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="score-center">
+            <div class="score-num" id="score-num">0%</div>
+            <div class="score-label-txt">الحضور</div>
+          </div>
+        </div>
+        <div class="score-praise" id="score-praise">سجّل حضورك لترى نتيجتك!</div>
+      </div>
+
+      <!-- week summary -->
+      <div class="section-title">ملخص الأسبوع</div>
+      <div class="week-summary-grid" id="week-summary-grid"></div>
+
+      <!-- github-style activity grid -->
+      <div class="section-title">خريطة النشاط</div>
+      <div class="activity-wrap">
+        <div class="activity-grid" id="activity-grid"></div>
+        <div class="activity-legend">
+          <span style="background:var(--border2)"></span>
+          <span style="background:rgba(124,109,250,.3)"></span>
+          <span style="background:rgba(124,109,250,.6)"></span>
+          <span style="background:var(--accent)"></span>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- REMINDERS PAGE -->
+    <div class="page" id="page-reminders">
+      <div class="page-header">
+        <h2 id="txt-reminders-title">تذكيراتي 🔔</h2>
+        <button class="btn-add" onclick="openAddReminderModal()">+ إضافة</button>
+      </div>
+      <div id="reminders-list" class="reminders-list"></div>
+    </div>
+  </div><!-- end page-container -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="bnav-item active" id="bnav-home" onclick="showPage('home')">
+      <svg class="bnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <span>الرئيسية</span>
+    </button>
+    <button class="bnav-item" id="bnav-lectures" onclick="showPage('lectures')">
+      <svg class="bnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <span>المحاضرات</span>
+    </button>
+    <button class="bnav-item" id="bnav-tasks" onclick="showPage('tasks')">
+      <svg class="bnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>المهام</span>
+    </button>
+    <button class="bnav-item" id="bnav-notes" onclick="showPage('notes')">
+      <svg class="bnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>الملاحظات</span>
+    </button>
+    <button class="bnav-item" id="bnav-stats" onclick="showPage('stats')">
+      <svg class="bnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>إحصائيات</span>
+    </button>
+    <button class="bnav-item" id="bnav-profile" onclick="showPage('profile')">
+      <svg class="bnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>حسابي</span>
+    </button>
+  </div>
+
+</div><!-- end app-screen -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- Add Schedule Modal -->
+<div class="modal-overlay" id="modal-schedule">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-schedule-title">إضافة محاضرة</h3>
+      <button onclick="closeModal('modal-schedule')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="schedule-type" value="lecture">
+      <div class="input-group"><label>اسم المادة</label><input type="text" id="sch-subject" placeholder="مثال: رياضيات 2"></div>
+      <div class="input-group"><label>اسم الدكتور</label><input type="text" id="sch-doctor" placeholder="د/ محمد أحمد"></div>
+      <div class="input-group"><label>اليوم</label>
+        <select id="sch-day">
+          <option value="0">الأحد</option>
+          <option value="1">الاثنين</option>
+          <option value="2">الثلاثاء</option>
+          <option value="3">الأربعاء</option>
+          <option value="4">الخميس</option>
+          <option value="5">الجمعة</option>
+          <option value="6">السبت</option>
+        </select>
+      </div>
+      <div class="two-col">
+        <div class="input-group"><label>من</label><input type="time" id="sch-from"></div>
+        <div class="input-group"><label>إلى</label><input type="time" id="sch-to"></div>
+      </div>
+      <div class="input-group"><label>المكان / القاعة</label><input type="text" id="sch-place" placeholder="قاعة 5"></div>
+      <div class="input-group"><label>المبنى</label><input type="text" id="sch-building" placeholder="مبنى أ"></div>
+      <div class="input-group"><label>اللون</label>
+        <div class="color-picker" id="sch-color-picker">
+          <span class="color-opt selected" data-color="#1a237e" style="background:#1a237e"></span>
+          <span class="color-opt" data-color="#00b0ff" style="background:#00b0ff"></span>
+          <span class="color-opt" data-color="#7c4dff" style="background:#7c4dff"></span>
+          <span class="color-opt" data-color="#ff5252" style="background:#ff5252"></span>
+          <span class="color-opt" data-color="#ffab00" style="background:#ffab00"></span>
+          <span class="color-opt" data-color="#00bcd4" style="background:#00bcd4"></span>
+        </div>
+      </div>
+      <div class="input-group"><label>ملاحظة (اختياري)</label><textarea id="sch-note" placeholder="أي تفاصيل إضافية..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-schedule')">إلغاء</button>
+      <button class="btn-save" onclick="saveSchedule()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="modal-task">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>إضافة تسكة</h3>
+      <button onclick="closeModal('modal-task')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group"><label>عنوان التسكة</label><input type="text" id="task-title" placeholder="مثال: مذاكرة الفصل الثالث"></div>
+      <div class="input-group"><label>المادة</label><input type="text" id="task-subject" placeholder="اسم المادة"></div>
+      <div class="input-group"><label>تاريخ التسليم</label><input type="date" id="task-due"></div>
+      <div class="input-group"><label>الأولوية</label>
+        <select id="task-priority">
+          <option value="high">عالية 🔴</option>
+          <option value="medium" selected>متوسطة 🟡</option>
+          <option value="low">منخفضة 🟢</option>
+        </select>
+      </div>
+      <div class="input-group"><label>ملاحظة</label><textarea id="task-note" placeholder="تفاصيل إضافية..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-task')">إلغاء</button>
+      <button class="btn-save" onclick="saveTask()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Note Modal -->
+<div class="modal-overlay" id="modal-note">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>إضافة ملاحظة</h3>
+      <button onclick="closeModal('modal-note')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group"><label>العنوان</label><input type="text" id="note-title" placeholder="عنوان الملاحظة"></div>
+      <div class="input-group"><label>النص</label><textarea id="note-body" placeholder="اكتب ملاحظتك هنا..." rows="5"></textarea></div>
+      <div class="input-group"><label>اللون</label>
+        <div class="color-picker" id="note-color-picker">
+          <span class="color-opt selected" data-color="#e8eaf6" style="background:#e8eaf6"></span>
+          <span class="color-opt" data-color="#e1f5fe" style="background:#e1f5fe"></span>
+          <span class="color-opt" data-color="#fff9c4" style="background:#fff9c4"></span>
+          <span class="color-opt" data-color="#fce4ec" style="background:#fce4ec"></span>
+          <span class="color-opt" data-color="#ede7f6" style="background:#ede7f6"></span>
+          <span class="color-opt" data-color="#e0f7fa" style="background:#e0f7fa"></span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-note')">إلغاء</button>
+      <button class="btn-save" onclick="saveNote()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Link Modal -->
+<div class="modal-overlay" id="modal-link">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>إضافة رابط سريع</h3>
+      <button onclick="closeModal('modal-link')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group"><label>اسم الرابط</label><input type="text" id="link-name" placeholder="مثال: موقع الكلية"></div>
+      <div class="input-group"><label>الرابط (URL)</label><input type="url" id="link-url" placeholder="https://..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-link')">إلغاء</button>
+      <button class="btn-save" onclick="saveLink()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reminder Notification -->
+
+<!-- Attendance Modal -->
+<div class="modal-overlay" id="modal-attend">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="attend-modal-title">تسجيل الحضور</h3>
+      <button onclick="closeModal('modal-attend')">✕</button>
+    </div>
+    <div class="modal-body" id="attend-modal-body">
+    </div>
+  </div>
+</div>
+
+<!-- Confirm End Term Modal -->
+<div class="modal-overlay" id="modal-endterm">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🎓 إنهاء الترم</h3>
+      <button onclick="closeModal('modal-endterm')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;padding:2rem 1.5rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+      <p style="font-size:1rem;font-weight:600;margin-bottom:.5rem;">متأكد إن الترم خلص؟</p>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:1.5rem;">هيتم حفظ سكورك وتقدر تبدأ ترم جديد</p>
+      <div style="display:flex;gap:.75rem;justify-content:center;">
+        <button class="btn-cancel" onclick="closeModal('modal-endterm')">لأ، رجوع</button>
+        <button class="btn-save" onclick="endTerm()" style="background:linear-gradient(135deg,#7c6dfa,#2dd4bf);">أيوه، خلص الترم 🎉</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- End Term Celebration -->
+<div class="celebration-overlay" id="celebration-overlay" style="display:none;">
+  <div class="celebration-card">
+    <div class="celeb-bouquet" id="celeb-bouquet">🌹</div>
+    <h2 class="celeb-title">مبروك! 🎉</h2>
+    <p class="celeb-score" id="celeb-score"></p>
+    <p class="celeb-msg" id="celeb-msg"></p>
+    <button class="btn-save" onclick="closeCelebration()" style="margin-top:1.5rem;width:100%;">شكراً 💜</button>
+  </div>
+</div>
+
+<!-- Reminder Time Modal -->
+<div class="modal-overlay" id="modal-reminder-time">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⏰ وقت التذكير الليلي</h3>
+      <button onclick="closeModal('modal-reminder-time')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.88rem;color:var(--text2);margin-bottom:1rem;">هيتم تذكيرك بمواعيد الغد في الوقت ده</p>
+      <div class="input-group">
+        <label>اختار الوقت</label>
+        <input type="time" id="reminder-time-input" value="22:00">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-reminder-time')">إلغاء</button>
+      <button class="btn-save" onclick="saveReminderTime()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bulk Schedule Modal -->
+<div class="modal-overlay" id="modal-bulk">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📅 إضافة الجدول كاملاً</h3>
+      <button onclick="closeModal('modal-bulk')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:1.2rem;">أضف كل مواعيدك مرة واحدة — كل سطر = محاضرة واحدة</p>
+
+      <div class="bulk-day-tabs" id="bulk-day-tabs">
+        <button class="bulk-day-tab active" data-day="0" onclick="selectBulkDay(0)">الأحد</button>
+        <button class="bulk-day-tab" data-day="1" onclick="selectBulkDay(1)">الاثنين</button>
+        <button class="bulk-day-tab" data-day="2" onclick="selectBulkDay(2)">الثلاثاء</button>
+        <button class="bulk-day-tab" data-day="3" onclick="selectBulkDay(3)">الأربعاء</button>
+        <button class="bulk-day-tab" data-day="4" onclick="selectBulkDay(4)">الخميس</button>
+      </div>
+
+      <div id="bulk-rows-container"></div>
+
+      <button class="btn-add-row" onclick="addBulkRow()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إضافة محاضرة
+      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-bulk')">إلغاء</button>
+      <button class="btn-save" onclick="saveBulkSchedule()">💾 حفظ الجدول</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Avatar Picker Modal -->
+<div class="modal-overlay" id="modal-avatar">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🎭 اختر صورتك</h3>
+      <button onclick="closeModal('modal-avatar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem;">اختر شخصية أو ارفع صورتك</p>
+      <div class="avatar-grid" id="avatar-grid"></div>
+      <div class="input-group" style="margin-top:1rem">
+        <label>أو ارفع صورة</label>
+        <label class="upload-photo-btn">
+          📷 اختر صورة من جهازك
+          <input type="file" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Reminder Modal -->
+<div class="modal-overlay" id="modal-reminder">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔔 إضافة تذكير</h3>
+      <button onclick="closeModal('modal-reminder')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>عنوان التذكير</label>
+        <input type="text" id="rem-title" placeholder="مثال: مراجعة الفصل الثالث">
+      </div>
+      <div class="two-col">
+        <div class="input-group">
+          <label>التاريخ</label>
+          <input type="date" id="rem-date">
+        </div>
+        <div class="input-group">
+          <label>الوقت</label>
+          <input type="time" id="rem-time">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>ملاحظة (اختياري)</label>
+        <textarea id="rem-note" placeholder="تفاصيل إضافية..."></textarea>
+      </div>
+      <div class="input-group">
+        <label>الأولوية</label>
+        <select id="rem-priority">
+          <option value="high">عالية 🔴</option>
+          <option value="medium" selected>متوسطة 🟡</option>
+          <option value="low">منخفضة 🟢</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-reminder')">إلغاء</button>
+      <button class="btn-save" onclick="saveReminder()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Friend Modal -->
+<div class="modal-overlay" id="modal-add-friend">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>👥 إضافة صاحب</h3>
+      <button onclick="closeModal('modal-add-friend')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>اسم المستخدم</label>
+        <div class="username-wrap">
+          <span class="username-prefix">@</span>
+          <input type="text" id="add-friend-inp" placeholder="username"
+            autocomplete="off" oninput="searchFriendModal(this.value)">
+        </div>
+      </div>
+      <div id="add-friend-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Friend Profile Modal -->
+<div class="modal-overlay" id="modal-friend-profile">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="friend-profile-title">ملف الصاحب</h3>
+      <button onclick="closeModal('modal-friend-profile')">✕</button>
+    </div>
+    <div class="modal-body" id="friend-profile-body"></div>
+  </div>
+</div>
+
+<div id="notification-toast" class="notification-toast"></div>
+
+<script src="sounds.js"></script>
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
